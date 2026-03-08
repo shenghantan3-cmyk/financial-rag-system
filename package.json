@@ -1,0 +1,20 @@
+{
+  "name": "financial-rag-system",
+  "version": "1.0.0",
+  "description": "Financial domain RAG system based on industry reports",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "chat": "node scripts/chat.mjs",
+    "setup": "node scripts/setup_db.mjs"
+  },
+  "keywords": [
+    "rag",
+    "finance",
+    "langgraph",
+    "qdrant",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT"
+}

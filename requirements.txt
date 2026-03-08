@@ -1,0 +1,28 @@
+# Financial RAG System - FastAPI Backend
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+httpx>=0.25.0
+
+# Qdrant Vector Database
+qdrant-client>=1.7.0
+
+# LangChain & Text Processing
+langchain>=0.1.0
+langchain-text-splitters>=0.0.1
+langchain-huggingface>=0.0.3
+langchain-qdrant>=0.1.0
+
+# For PDF Processing (optional)
+pymupdf>=1.23.0
+pymupdf4llm>=0.0.2
+
+# For Embeddings (optional - use local models)
+# sentence-transformers>=2.2.2
+
+# For Ollama (optional - local LLM)
+# langchain-ollama>=0.0.1
+
+# Monitoring
+python-multipart>=0.0.6

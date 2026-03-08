@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Financial RAG API Server
+  financial-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: financial-rag
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
+      - HOST=0.0.0.0
+      # LLM Configuration (use one of these)
+      # OpenAI
+      # - OPENAI_API_KEY=your-api-key
+      # Anthropic
+      # - ANTHROPIC_API_KEY=your-api-key
+      # Moonshot/Kimi
+      # - MOONSHOT_API_KEY=your-api-key
+      # Ollama (local)
+      # - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Ollama for local LLM (uncomment to enable)
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       devices:
+  #         - driver: nvidia
+  #           count: all
+  #           capabilities: [gpu]
+
+  # Cloudflare Tunnel (for public access)
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared
+  #   command: tunnel --no-autoupdate --edge-ip-version auto run --token YOUR_TOKEN_HERE
+  #   restart: unless-stopped
+
+volumes:
+  # ollama-data:
+
+networks:
+  default:
+    name: financial-rag-network

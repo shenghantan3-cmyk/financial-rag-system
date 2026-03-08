@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models.schemas import (
+from ..models.schemas import (
     QueryRequest, QueryResponse,
     DocumentUploadRequest, DocumentResponse,
     HealthStatus, StatsResponse,
@@ -83,7 +83,7 @@ async def query(
     
     try:
         # 步骤 1: 检索相关报告 (简化版)
-        from knowledge_base import KnowledgeBase
+        from ..core.knowledge_base import KnowledgeBase
         kb = KnowledgeBase()
         search_results = kb.search(request.question, top_k=request.sources_limit)
         
@@ -103,7 +103,7 @@ async def query(
         context = "\n\n".join(context_parts)
         
         # 步骤 2: 调用 Moonshot API
-        from moonshot_client import MoonshotClient
+        from ..core.moonshot_client import MoonshotClient
         client = MoonshotClient()
         
         system_prompt = """你是专业的金融领域问答助手。

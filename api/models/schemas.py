@@ -38,7 +38,7 @@ class QueryRequest(BaseModel):
     stream: bool = Field(default=False, description="是否流式输出")
     temperature: Optional[float] = Field(default=None, ge=0, le=1, description="温度参数")
     max_tokens: Optional[int] = Field(default=None, ge=100, le=8192, description="最大输出token")
-    sources_limit: Optional[int] = Field(default=5, ge=1, ge=20, description="最大参考文档数")
+    sources_limit: Optional[int] = Field(default=5, ge=1, le=20, description="最大参考文档数")
     
     class Config:
         json_schema_extra = {

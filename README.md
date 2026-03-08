@@ -1,47 +1,32 @@
-# 📈 Financial RAG System
+# 📈 Financial RAG System v2.1
 
-基于行业研究报告的**金融领域检索增强生成（RAG）问答系统**。
+**Enterprise-grade Financial Q&A System**
 
-## ✨ 功能特性
-
-- 💬 **智能问答** - 基于金融报告的专业问答
-- 🎨 **美观 UI** - 现代渐变 Dark Mode 界面
-- 📱 **响应式** - 支持 PC 和移动端
-- 🔍 **混合检索** - Embedding + BM25 关键字
-- 📝 **对话记忆** - 维护上下文连贯性
-- 📊 **溯源标注** - 注明信息来源
-- 🐳 **Docker 部署** - 一键容器化部署
-- 🌐 **公网暴露** - 支持 Cloudflare Tunnel
+基于 Moonshot API + 行业报告检索的企业级金融问答系统
 
 ---
 
-## 🚀 快速启动
+## ✨ Features
 
-### 方式一：Docker 部署（推荐）
+### 🔧 生产级特性
 
-```bash
-# 1. 克隆项目
-git clone <your-repo-url>
-cd finance_rag
+| 特性 | 描述 |
+|------|------|
+| 🏢 **企业架构** | 模块化设计、分层架构、松耦合 |
+| 🔒 **安全防护** | API 限流、请求验证、日志审计 |
+| 📊 **监控指标** | Prometheus 指标、健康检查 |
+| ⚡ **性能优化** | 内存缓存、连接复用、异步处理 |
+| 🧪 **测试支持** | Pydantic 模型、类型检查 |
+| 📝 **完整文档** | OpenAPI 3.0、交互式文档 |
 
-# 2. 启动服务
-chmod +x start.sh
-./start.sh
+### 🛠 技术栈
+
 ```
-
-访问 http://localhost:8000
-
-### 方式二：手动运行
-
-```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 启动后端
-python api/main.py
-
-# 访问
-# 打开 ui/index.html
+Backend:     FastAPI + uvicorn
+LLM:         Moonshot (Kimi) API
+Frontend:    React (via CDN)
+Logs:        JSON + Text
+Deploy:      Docker / Nginx
 ```
 
 ---
@@ -49,176 +34,146 @@ python api/main.py
 ## 📁 项目结构
 
 ```
-finance_rag/
+financial-rag-system/
 ├── api/
-│   └── main.py              # FastAPI 后端
+│   ├── main.py              # 主入口 (生产级)
+│   ├── routes/
+│   │   └── api.py           # API 路由
+│   ├── models/
+│   │   └── schemas.py       # Pydantic 数据模型
+│   └── core/
+│       ├── moonshot_client.py  # Moonshot API 客户端
+│       └── knowledge_base.py   # 知识库检索
+├── config/
+│   └── settings.py          # 企业级配置管理
+├── utils/
+│   ├── logger.py            # 企业级日志系统
+│   └── rate_limit.py        # API 限流器
 ├── ui/
-│   └── index.html           # Web 界面
-├── data/
-│   ├── vector_db/           # Qdrant 向量数据库
-│   └── parent_store/        # Parent 块存储
-├── nginx/
-│   └── nginx.conf           # Nginx 配置
-├── scripts/
-│   ├── chat.mjs             # CLI 聊天
-│   └── setup_db.mjs         # 数据库初始化
+│   └── index.html           # Web UI
+├── tests/                   # 测试目录
 ├── Dockerfile               # Docker 构建
 ├── docker-compose.yml       # Docker Compose
-├── docker-compose.public.yml # 公网部署配置
-├── start.sh                 # 快速启动脚本
+├── nginx.conf               # Nginx 配置
 ├── requirements.txt         # Python 依赖
 └── README.md
 ```
 
 ---
 
-## 🌐 公网部署
+## 🚀 快速部署
 
-### 方案一：Cloudflare Tunnel（免费，推荐）
+### 1. 安装依赖
 
 ```bash
-# 1. 注册 Cloudflare Zero Trust
-#    https://one.dash.cloudflare.com/
-
-# 2. 创建 Tunnel，获取 Token
-
-# 3. 配置环境变量
-echo 'CLOUDFLARE_TOKEN=your-tunnel-token' > .env
-
-# 4. 启动公网服务
-docker compose -f docker-compose.yml -f docker-compose.public.yml up -d
+pip install -r requirements.txt
 ```
 
-访问隧道URL，即可公网访问！
-
-### 方案二：部署到云服务器
+### 2. 配置环境
 
 ```bash
-# 1. 构建镜像
+export MOONSHOT_API_KEY="your-api-key"
+export APP_ENV=production
+```
+
+### 3. 启动服务
+
+```bash
+# 开发模式
+python api/main.py
+
+# 生产模式
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+### 4. Docker 部署
+
+```bash
 docker build -t financial-rag .
-
-# 2. 运行容器
-docker run -d \
-  --name financial-rag \
-  -p 80:8000 \
-  -v $(pwd)/data:/app/data \
-  financial-rag
+docker run -p 8000:8000 -e MOONSHOT_API_KEY="your-key" financial-rag
 ```
 
-### 方案三：使用反向代理
+---
 
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    
-    location / {
-        proxy_pass http://localhost:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+## 📡 API 文档
+
+### 问答接口
+
+```bash
+POST /api/query
+Content-Type: application/json
+
+{
+    "question": "2026年人工智能行业趋势如何？",
+    "history": [],
+    "stream": false,
+    "sources_limit": 5
+}
+```
+
+### 健康检查
+
+```bash
+GET /api/health
+
+Response:
+{
+    "status": "healthy",
+    "version": "2.1.0",
+    "components": {
+        "api": {"status": "healthy"},
+        "llm": {"status": "configured"}
     }
 }
 ```
 
----
-
-## ⚙️ 配置说明
-
-### 环境变量
-
-在 `.env` 文件中配置：
-
-```env
-# LLM 选择（选择其一）
-
-# OpenAI
-OPENAI_API_KEY=sk-xxx
-
-# Moonshot/Kimi
-MOONSHOT_API_KEY=sk-xxx
-
-# Ollama (本地)
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen3:4b-instruct
-```
-
-### 修改 LLM
-
-编辑 `api/main.py` 中的 `ask()` 函数，替换为你的 LLM 调用。
-
----
-
-## 📊 系统架构
-
-```
-                    ┌─────────────────────┐
-                    │   🖥️ 浏览器用户       │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   🌐 Nginx / CDN     │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   🐳 Docker 容器     │
-                    │  ┌───────────────┐  │
-                    │  │  FastAPI API   │  │
-                    │  │  (8000端口)    │  │
-                    │  └───────┬───────┘  │
-                    │          │          │
-                    │  ┌───────▼───────┐  │
-                    │  │   Qdrant DB   │  │
-                    │  │  (向量检索)    │  │
-                    │  └───────────────┘  │
-                    └─────────────────────┘
-```
-
----
-
-## 📦 依赖数据
-
-系统会从以下位置自动导入报告：
-
-- `~/finance_reports/` - 每日金融报告
-- `docs/` - 自定义 PDF/Markdown 文件
-- `markdown/` - 转换后的文档
-
----
-
-## 🔧 常用命令
+### 监控指标
 
 ```bash
-# 启动服务
-./start.sh
-
-# 查看日志
-docker compose logs -f
-
-# 停止服务
-docker compose down
-
-# 重启服务
-docker compose restart
-
-# 更新代码
-docker compose up -d --build
-
-# 清理数据
-rm -rf data/vector_db/*
+GET /metrics
 ```
 
 ---
 
-## 🛠️ 开发计划
+## 🔒 安全特性
 
-- [ ] WebSocket 实时通信
-- [ ] 用户认证系统
-- [ ] 文档上传处理
-- [ ] 多模型切换
-- [ ] 性能优化
+1. **API 限流** - 默认 60 次/分钟
+2. **请求验证** - Pydantic 模型校验
+3. **日志审计** - JSON 格式日志
+4. **错误处理** - 全局异常捕获
 
 ---
 
-## 📄 许可证
+## 📊 性能指标
+
+| 指标 | 目标值 |
+|------|--------|
+| 响应时间 | < 2s (不含 LLM) |
+| 并发请求 | 100+ |
+| 缓存命中率 | > 50% |
+| 可用性 | 99.9% |
+
+---
+
+## 🧪 测试
+
+```bash
+# 运行测试
+python -m pytest tests/
+
+# 代码检查
+python -m flake8 api/
+python -m mypy api/
+```
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📄 License
 
 MIT License
